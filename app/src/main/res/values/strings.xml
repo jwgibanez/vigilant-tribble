@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">STB</string>
+    <string name="app_name_full">STB Scanner</string>
     <string name="allow">Allow</string>
     <string name="close">Close</string>
     <string name="error_permission">Permission Error</string>
-    <string name="location_permission_required1">Camera permission is required for this app.</string>
-    <string name="location_permission_required2">Camera permission is required for this app. Enable via Settings -> App -> Cartrack -> Permissions -> Camera.</string>
+    <string name="location_permission_required1">Camera permission is required for this feature.</string>
+    <string name="location_permission_required2">Camera permission is required for this feature. Enable via Settings -> App -> Cartrack -> Permissions -> Camera.</string>
 </resources>

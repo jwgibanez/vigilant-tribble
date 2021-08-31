@@ -1,4 +1,4 @@
-package io.github.jwgibanez.stb.ui.main
+package io.github.jwgibanez.stb.ui.qr
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -16,20 +16,20 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import io.github.jwgibanez.stb.R
-import io.github.jwgibanez.stb.databinding.MainFragmentBinding
+import io.github.jwgibanez.stb.databinding.FragmentQrBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class QrScanFragment : Fragment() {
 
-    private var _binding: MainFragmentBinding? = null
+    private var _binding: FragmentQrBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: QrScanViewModel by viewModels()
 
     private var cameraExecutor: ExecutorService? = null
 
-    private val permRequestLauncher =
+    private val permissionRequestLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             when {
                 it -> {
@@ -49,7 +49,7 @@ class QrScanFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = MainFragmentBinding.inflate(inflater, container, false)
+        _binding = FragmentQrBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -111,7 +111,7 @@ class QrScanFragment : Fragment() {
     }
 
     private fun requestForPermission() {
-        permRequestLauncher.launch(Manifest.permission.CAMERA)
+        permissionRequestLauncher.launch(Manifest.permission.CAMERA)
     }
 
     private fun showMissingPermissionError1() {

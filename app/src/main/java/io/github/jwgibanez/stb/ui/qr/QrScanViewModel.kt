@@ -1,4 +1,4 @@
-package io.github.jwgibanez.stb.ui.main
+package io.github.jwgibanez.stb.ui.qr
 
 import androidx.lifecycle.ViewModel
 
