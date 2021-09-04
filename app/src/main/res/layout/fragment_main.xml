@@ -28,10 +28,25 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="@+id/start_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="30dp"
+        android:textSize="18sp"
+        android:text="@string/instructions_main" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/start_button"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="Main Fragment" />
+        app:lottie_fileName="start.json"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
