@@ -14,12 +14,22 @@ android {
         targetSdk 31
         versionCode 1
         versionName "1.0"
+        setProperty("archivesBaseName", "STB-$versionName-$versionCode")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            storeFile file('../keystore/identity.jks')
+            storePassword 'pass1234'
+            keyAlias 'dev'
+            keyPassword 'pass1234'
+        }
+    }
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
