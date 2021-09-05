@@ -53,7 +53,6 @@ class ResultFragment : Fragment() {
 
         binding.textValue.afterTextChanged {
             viewModel.dataChanged(
-                requireContext(),
                 binding.textValue.text.toString()
             )
 

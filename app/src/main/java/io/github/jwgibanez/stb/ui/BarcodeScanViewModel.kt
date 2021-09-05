@@ -18,7 +18,7 @@ class BarcodeScanViewModel : ViewModel() {
     private val _form = MutableLiveData<FormState>()
     val formState: LiveData<FormState> = _form
 
-    fun dataChanged(context: Context, nric: String) {
+    fun dataChanged(nric: String) {
         if (!isNricValid(nric)) {
             val state = FormState()
             state.nricError = R.string.nric_invalid
