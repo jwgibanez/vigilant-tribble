@@ -1,34 +1,37 @@
 package io.github.jwgibanez.stb
 
 import android.os.Bundle
-import androidx.fragment.app.FragmentActivity
-import androidx.recyclerview.widget.RecyclerView
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import io.github.jwgibanez.stb.databinding.ActivityMainBinding
+import io.github.jwgibanez.stb.ui.BarcodeScanViewModel
 
-class MainActivity : FragmentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var navController: NavController
+    private val viewModel: BarcodeScanViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.viewPager.apply {
-            adapter = MainPager(this@MainActivity)
-            offscreenPageLimit = 1
-            // Disable over-scroll animation
-            (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-        }
-    }
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
 
-    override fun onBackPressed() {
-        binding.viewPager.apply {
-            if (currentItem == 0) {
-                super.onBackPressed()
-            } else {
-                currentItem = 0
-            }
-        }
+        // Top-level destinations; hides back arrow
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.mainFragment,
+            )
+        )
+
+        setupActionBarWithNavController(navController, appBarConfiguration)
     }
 }

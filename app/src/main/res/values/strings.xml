@@ -3,8 +3,13 @@
     <string name="app_name_full">STB Scanner</string>
     <string name="allow">Allow</string>
     <string name="close">Close</string>
-    <string name="instructions_main">Swipe right to begin\nscanning your NRIC.</string>
+    <string name="card_detail">Card Details</string>
+    <string name="nric_number">NRIC Number</string>
+    <string name="estimated_age">Estimated Age</string>
+    <string name="scan_barcode">Scan Barcode</string>
+    <string name="instructions_main">Click to begin\nscanning your NRIC.</string>
     <string name="error_permission">Permission Error</string>
+    <string name="nric_invalid">NRIC value is invalid.</string>
     <string name="location_permission_required1">Camera permission is required for this feature.</string>
     <string name="location_permission_required2">Camera permission is required for this feature. Enable via Settings -> App -> Cartrack -> Permissions -> Camera.</string>
 </resources>

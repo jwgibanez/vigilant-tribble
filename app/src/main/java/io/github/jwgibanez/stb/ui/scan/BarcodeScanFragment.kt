@@ -1,50 +1,26 @@
 package io.github.jwgibanez.stb.ui.scan
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
-import io.github.jwgibanez.stb.R
+import androidx.navigation.fragment.findNavController
+import com.google.common.util.concurrent.ListenableFuture
 import io.github.jwgibanez.stb.databinding.FragmentBarcodeScanBinding
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import io.github.jwgibanez.stb.ui.CameraPreviewFragment
 
-class BarcodeScanFragment : Fragment() {
+class BarcodeScanFragment : CameraPreviewFragment() {
 
     private var _binding: FragmentBarcodeScanBinding? = null
     private val binding get() = _binding!!
-
-    private val viewModel: BarcodeScanViewModel by viewModels()
-
-    private var cameraExecutor: ExecutorService? = null
-
-    private val permissionRequestLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            when {
-                it -> {
-                    startCamera()
-                }
-                shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
-                    showMissingPermissionError1()
-                }
-                else -> {
-                    showMissingPermissionError2()
-                }
-            }
-        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,23 +36,23 @@ class BarcodeScanFragment : Fragment() {
         viewModel.textValue.observe(viewLifecycleOwner) {
             binding.text.text = it ?: ""
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (allPermissionsGranted()) {
-            startCamera()
-        } else {
-            requestForPermission()
+        viewModel.bitmap.observe(viewLifecycleOwner) {
+            it?.let {
+                val action = BarcodeScanFragmentDirections
+                    .actionBarcodeScanFragmentToResultFragment()
+                findNavController().navigate(action)
+            }
         }
-
-        cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
-    override fun onPause() {
-        super.onPause()
-        cameraExecutor?.shutdown()
-        cameraExecutor = null
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                requireActivity().onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onDestroyView() {
@@ -84,15 +60,7 @@ class BarcodeScanFragment : Fragment() {
         _binding = null
     }
 
-    private fun allPermissionsGranted(): Boolean {
-        return (ContextCompat.checkSelfPermission(
-            requireContext(), Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED)
-    }
-
-    private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-
+    override fun startCamera(cameraProviderFuture: ListenableFuture<ProcessCameraProvider>) {
         cameraProviderFuture.addListener({
             // Used to bind the lifecycle of cameras to the lifecycle owner
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
@@ -100,8 +68,10 @@ class BarcodeScanFragment : Fragment() {
             // Preview
             val preview = Preview.Builder()
                 .build()
-                .also {
-                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+                .also { preview ->
+                    _binding?.let {
+                        preview.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+                    }
                 }
 
             // Select back camera as a default
@@ -111,56 +81,29 @@ class BarcodeScanFragment : Fragment() {
                 // Unbind use cases before rebinding
                 cameraProvider.unbindAll()
 
+                // Analysis
                 val imageAnalysis = ImageAnalysis.Builder()
                     .setTargetResolution(Size(1280, 720))
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
 
-                imageAnalysis.setAnalyzer(cameraExecutor!!, MyImageAnalyzer(viewModel))
+                imageAnalysis.setAnalyzer(cameraExecutor!!, MyImageAnalyzer(requireActivity(), viewModel))
 
                 // Bind use cases to camera
                 cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview)
 
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
+                // Cleanup
+                viewModel.textValue.postValue(null)
+                viewModel.bitmap.postValue(null)
+                findNavController().popBackStack()
             }
 
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
-    private fun requestForPermission() {
-        permissionRequestLauncher.launch(Manifest.permission.CAMERA)
-    }
-
-    private fun showMissingPermissionError1() {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle(R.string.error_permission)
-            .setMessage(R.string.location_permission_required1)
-            .setPositiveButton(R.string.allow) { _, _ ->
-                requestForPermission()
-            }
-            .setNegativeButton(R.string.close) { _, _ ->
-                // User cancelled the dialog, go back to main fragment
-                //findNavController().popBackStack()
-                requireActivity().finish()
-            }
-        builder.create().show()
-    }
-
-    private fun showMissingPermissionError2() {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle(R.string.error_permission)
-            .setMessage(R.string.location_permission_required2)
-            .setNegativeButton(R.string.close) { _, _ ->
-                // User cancelled the dialog, go back to main fragment
-                //findNavController().popBackStack()
-                requireActivity().finish()
-            }
-        builder.create().show()
-    }
-
     companion object {
-        private const val TAG = "QrScanFragment"
-        fun newInstance() = BarcodeScanFragment()
+        private const val TAG = "BarcodeScanFragment"
     }
 }
